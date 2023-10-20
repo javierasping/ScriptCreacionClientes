@@ -20,8 +20,12 @@ virsh --connect qemu:///system vol-create-as default "${nombre}.qcow2" "${tamano
 # Cambiar el nombre del host de la máquina virtual
 sudo virt-customize --connect "qemu:///system" -a "/var/lib/libvirt/images/${nombre}.qcow2" --hostname "${nombre}"
 
+#Red
+cp "/var/lib/libvirt/images/${nombre}.qcow2" "/var/lib/libvirt/images/new${nombre}.qcow2"
+virt-resize --expand /dev/sda1 "/var/lib/libvirt/images/new${nombre}.qcow2" "/var/lib/libvirt/images/${nombre}.qcow2"
+
 # Crear la máquina virtual
-virt-install --connect qemu:///system --virt-type kvm --name "${nombre}" --os-variant debian10 --disk path="/var/lib/libvirt/images/${nombre}.qcow2",size="${tamano_volumen}",format=qcow2 --memory 4096 --vcpus 2 --import --network bridge="${puente}"
+virt-install --connect qemu:///system --noautoconsole --virt-type kvm --name "${nombre}" --os-variant debian10 --disk path="/var/lib/libvirt/images/${nombre}.qcow2",size="${tamano_volumen}",format=qcow2 --memory 4096 --vcpus 2 --import --network bridge="${puente}"
 
 # Iniciar la máquina virtual
 virsh --connect qemu:///system start "${nombre}"
